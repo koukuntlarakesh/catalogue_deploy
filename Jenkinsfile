@@ -18,14 +18,8 @@ pipeline {
     parameters {
       string(name: 'version', defaultValue: '1.0.0', description: 'Version of catalogue?')
       string(name: 'environment', defaultValue: 'dev', description: 'Environment of  deployment (dev/prod) ?')
-
-    //     text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
-
-    //     booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
-
-    //     choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
-
-    //     password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+      booleanParam(name: 'Create', defaultValue: false, description: 'Want to create the infra?')
+      booleanParam(name: 'Destroy', defaultValue: false, description: 'Want to delete the infra?')
     }
     stages {
         stage('getting version') {
@@ -41,27 +35,68 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """ 
+                 cd terraform 
                  terraform init -reconfigure -backend-config = "${params.environment}/backend.tf"
                  """
             }
+        }
+        stage("plan"){
+            when{
+                expression
+                {
+                    params.Create
+                }
+            }
             steps {
                 sh """ 
+                cd terraform
                  terraform plan -var-file=${params.environment}/${params.environment}.tfvars -var="app_version = ${params.version} 
                  """
             }
-            // steps {
-            //     sh """ 
-            //      terraform apply -auto-approve -var-file=${params.environment}/${params.environment}.tfvars -var="app_version = ${params.version} 
-            //      """
-            // }
         }
-        
+         stage("Apply"){
+            when{
+                expression
+                {
+                    params.Create
+                }
+            }
+            steps {
+                sh """ 
+                cd terraform
+                 terraform apply -var-file=${params.environment}/${params.environment}.tfvars -var="app_version = ${params.version} -auto-approve
+                 """
+            }
+        }
+         stage("Destroy"){
+            when{
+                expression
+                {
+                    params.Destroy
+                }
+            }
+            steps {
+                sh """ 
+                cd terraform
+                 terraform destroy -var-file=${params.environment}/${params.environment}.tfvars -var="app_version = ${params.version} -auto-approve
+                 """
+            }
+        }
     }
      post { 
         always { 
             echo 'I will always say Hello again!'
              deleteDir()
         }
+        success
+        {
+            echo 'The excution is success'
+        }
+        failure
+        {
+            echo 'The is failure check the  logs'
+        }
+     
      }
         
     
