@@ -16,7 +16,7 @@ pipeline {
         }
     
     parameters {
-      string(name: 'version', defaultValue: '1.0.0', description: 'Version of catalogue?')
+      string(name: 'version', defaultValue: '', description: 'Version of catalogue?')
       string(name: 'environment', defaultValue: 'dev', description: 'Environment of  deployment (dev/prod) ?')
       booleanParam(name: 'Create', defaultValue: false, description: 'Want to create the infra?')
       booleanParam(name: 'Destroy', defaultValue: false, description: 'Want to delete the infra?')
