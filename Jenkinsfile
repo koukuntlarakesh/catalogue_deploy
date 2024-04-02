@@ -9,11 +9,11 @@ pipeline {
         disableConcurrentBuilds()
         ansiColor('xterm')
     }
-    environment {
-        packageVersion = ''
-        nexusUrl= "172.31.92.65:8081"
+    // environment {
+    //     packageVersion = ''
+    //     nexusUrl= "172.31.92.65:8081"
 
-        }
+        //}
     
     parameters {
       string(name: 'version', defaultValue: '', description: 'Version of catalogue?')
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 sh """ 
                  cd terraform 
-                 terraform init -backend-config = "${params.environment}/backend.tf -reconfigure"
+                 terraform init --backend-config = "${params.environment}/backend.tf -reconfigure"
                  """
             }
         }
